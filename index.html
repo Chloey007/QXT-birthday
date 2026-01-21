@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>献给亲爱的邱先生！</title>
+    <style>
+        /* 全局样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background-color: #f9f9f9;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        /* 顶部导航栏 - 蓝色长条背景 */
+        .top-nav {
+            background-color: #1a73e8;
+            color: white;
+            padding: 18px 0;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+        
+        .nav-logo {
+            font-size: 24px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+        
+        .nav-menu {
+            display: flex;
+            list-style: none;
+        }
+        
+        .nav-item {
+            margin: 0 15px;
+        }
+        
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .music-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .music-btn {
+            background-color: #ff4081;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .music-btn:hover {
+            background-color: #f50057;
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(255, 64, 129, 0.3);
+        }
+        
+        .music-btn.playing {
+            background-color: #4CAF50;
+            animation: pulse 1.5s infinite;
+        }
+        
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .volume-slider {
+            width: 80px;
+        }
+        
+        /* 音乐播放器浮动面板 */
+        .music-player {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #ff4081, #f50057);
+            color: white;
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 8px 25px rgba(255, 64, 129, 0.3);
+            z-index: 999;
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            width: 280px;
+            animation: slideIn 0.5s ease;
+        }
+        
+        .music-player.show {
+            display: flex;
+        }
+        
+        .player-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .player-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .close-player {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s;
+        }
+        
+        .close-player:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .song-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .song-icon {
+            font-size: 24px;
+            animation: rotate 10s linear infinite;
+        }
+        
+        .song-title {
+            font-size: 14px;
+        }
+        
+        .song-artist {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        
+        .progress-container {
+            width: 100%;
+            height: 4px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+            cursor: pointer;
+            margin: 5px 0;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background-color: white;
+            border-radius: 2px;
+            width: 0%;
+            transition: width 0.1s;
+        }
+        
+        .player-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .control-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s;
+        }
+        
+        .control-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .play-pause-btn {
+            background-color: white;
+            color: #ff4081;
+            font-size: 18px;
+        }
+        
+        .play-pause-btn:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .time-display {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        
+        /* 动画 */
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(76, 175, 80, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        /* 主内容区域 */
+        .main-content {
+            margin-top: 80px;
+            padding: 20px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        /* 生日祝福部分 */
+        .birthday-section {
+            position: relative;
+            margin-bottom: 60px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .birthday-image {
+            width: 100%;
+            height: 500px;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .birthday-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.85);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .birthday-title {
+            font-size: 48px;
+            color: #1a237e;
+            margin-bottom: 20px;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            letter-spacing: 2px;
+        }
+        
+        .birthday-subtitle {
+            font-size: 28px;
+            color: #3949ab;
+            font-weight: 500;
+            margin-bottom: 30px;
+        }
+        
+        .birthday-message {
+            font-size: 20px;
+            color: #555;
+            max-width: 800px;
+            line-height: 1.8;
+        }
+        
+        /* 关于我们部分 */
+        .about-section {
+            padding: 40px 20px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 60px;
+        }
+        
+        .section-title {
+            font-size: 36px;
+            color: #1a73e8;
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e8eaf6;
+            position: relative;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background-color: #1a73e8;
+        }
+        
+        .about-description {
+            font-size: 18px;
+            text-align: center;
+            margin-bottom: 50px;
+            color: #555;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.8;
+        }
+        
+        /* 照片轮播展示 */
+        .photo-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        .photo-item {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s ease;
+            height: 320px;
+            position: relative;
+            background-color: #f5f5f5;
+        }
+        
+        .photo-item:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* 轮播容器 */
+        .carousel-container {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+            border-radius: 8px 8px 0 0;
+        }
+        
+        .carousel-slides {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+            height: 100%;
+        }
+        
+        .carousel-slide {
+            min-width: 100%;
+            height: 100%;
+        }
+        
+        .carousel-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        
+        /* 轮播控制按钮 */
+        .carousel-controls {
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 10px;
+            transform: translateY(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .photo-item:hover .carousel-controls {
+            opacity: 1;
+        }
+        
+        .carousel-btn {
+            background-color: rgba(255, 255, 255, 0.8);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 16px;
+            color: #333;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .carousel-btn:hover {
+            background-color: white;
+            transform: scale(1.1);
+        }
+        
+        /* 轮播指示器 */
+        .carousel-indicators {
+            position: absolute;
+            bottom: 15px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            z-index: 10;
+        }
+        
+        .indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .indicator.active {
+            background-color: white;
+            transform: scale(1.2);
+        }
+        
+        /* 卡片底部信息 */
+        .photo-info {
+            padding: 20px;
+        }
+        
+        .photo-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a237e;
+            margin-bottom: 8px;
+        }
+        
+        .photo-description {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+        
+        .photo-count {
+            font-size: 13px;
+            color: #888;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        /* 图片加载失败的样式 */
+        .carousel-slide img::after {
+            content: "图片加载失败";
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #f0f0f0;
+            color: #888;
+            font-size: 14px;
+        }
+        
+        /* 页脚 */
+        .footer {
+            background-color: #1a237e;
+            color: white;
+            padding: 30px 0;
+            text-align: center;
+            margin-top: 40px;
+            margin-bottom: 80px; /* 为音乐播放器留出空间 */
+        }
+        
+        .footer p {
+            margin: 10px 0;
+            font-size: 16px;
+        }
+        
+        .footer-heart {
+            color: #ff4081;
+            font-size: 20px;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                padding: 10px 20px;
+                gap: 15px;
+            }
+            
+            .nav-menu {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .nav-item {
+                margin: 5px 10px;
+            }
+            
+            .music-controls {
+                margin-top: 10px;
+            }
+            
+            .music-player {
+                width: 90%;
+                right: 5%;
+                left: 5%;
+            }
+            
+            .birthday-title {
+                font-size: 36px;
+            }
+            
+            .birthday-subtitle {
+                font-size: 22px;
+            }
+            
+            .birthday-message {
+                font-size: 18px;
+            }
+            
+            .birthday-image {
+                height: 400px;
+            }
+            
+            .section-title {
+                font-size: 28px;
+            }
+            
+            .photo-gallery {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            }
+            
+            .photo-item {
+                height: 300px;
+            }
+            
+            .carousel-container {
+                height: 180px;
+            }
+            
+            .carousel-controls {
+                opacity: 1; /* 在移动设备上始终显示控制按钮 */
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .birthday-title {
+                font-size: 28px;
+            }
+            
+            .birthday-subtitle {
+                font-size: 18px;
+            }
+            
+            .birthday-image {
+                height: 350px;
+            }
+            
+            .photo-gallery {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-link {
+                font-size: 14px;
+                padding: 6px 12px;
+            }
+            
+            .music-btn {
+                padding: 6px 12px;
+                font-size: 13px;
+            }
+        }
+    </style>
+    <!-- 引入Font Awesome图标 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <header class="top-nav">
+        <div class="nav-container">
+            <div class="nav-logo">关于生日纪念</div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#home" class="nav-link active">
+                        <i class="fas fa-home"></i>
+                        <span>首页</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#about" class="nav-link">
+                        <i class="fas fa-users"></i>
+                        <span>关于我们</span>
+                    </a>
+                </li>
+            </ul>
+            <div class="music-controls">
+                <button id="music-toggle" class="music-btn">
+                    <i class="fas fa-music"></i>
+                    <span>播放好运来</span>
+                </button>
+                <div class="volume-control">
+                    <i class="fas fa-volume-up"></i>
+                    <input type="range" id="volume-slider" class="volume-slider" min="0" max="100" value="70">
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <!-- 音乐播放器浮动面板 -->
+    <div id="music-player" class="music-player">
+        <div class="player-header">
+            <div class="player-title">正在播放</div>
+            <button id="close-player" class="close-player">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="song-info">
+            <div class="song-icon">
+                <i class="fas fa-compact-disc"></i>
+            </div>
+            <div>
+                <div class="song-title">好运来</div>
+                <div class="song-artist">祖海</div>
+            </div>
+        </div>
+        <div class="progress-container" id="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        <div class="time-display">
+            <span id="current-time">0:00</span>
+            <span id="duration">0:00</span>
+        </div>
+        <div class="player-controls">
+            <button id="prev-btn" class="control-btn">
+                <i class="fas fa-step-backward"></i>
+            </button>
+            <button id="play-pause-btn" class="control-btn play-pause-btn">
+                <i class="fas fa-play"></i>
+            </button>
+            <button id="next-btn" class="control-btn">
+                <i class="fas fa-step-forward"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- 主内容区域 -->
+    <main class="main-content">
+        <!-- 生日祝福部分 -->
+        <section id="home" class="birthday-section">
+            <!-- 您也可以将主图片替换为本地图片 -->
+            <img src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2069&q=80" alt="生日庆祝背景" class="birthday-image">
+            <div class="birthday-overlay">
+                <h1 class="birthday-title">屏幕前的邱先生，首先祝你生日快乐</h1>
+                <h2 class="birthday-subtitle">恭喜你成功升级至3.0全新版本</h2>
+                <p class="birthday-message">
+                    希望以后的每一天，你都开开心心、财源滚滚、早睡早起、身体健康。
+                    生活或许有时有点苦，希望我们永远能做彼此的那颗糖。
+                    下面请欣赏我们的时刻。
+                </p>
+            </div>
+        </section>
+
+        <!-- 关于我们部分 -->
+        <section id="about" class="about-section">
+            <h2 class="section-title">关于我们</h2>
+            <p class="about-description">
+                这里是为了庆祝邱先生30岁生日而创建的网站。
+                记录了我们一起度过的美好时光和珍贵回忆，每一组照片背后都有一个温馨的故事。
+            </p>
+            
+            <div class="photo-gallery">
+                <!-- 日常美好 -->
+                <div class="photo-item">
+                    <div class="carousel-container">
+                        <div class="carousel-slides" data-carousel="1">
+                            <!-- 第1张照片 -->
+                            <div class="carousel-slide">
+                                <img src="local-photos/friends1.jpg" alt="日常美好" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'">
+                            </div>
+                            <!-- 第2张照片 -->
+                            <div class="carousel-slide">
+                                <img src="local-photos/friends2.jpg" alt="日常美好" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1542744095-fcf48d80b0fd?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'">
+                            </div>
+                            <!-- 第3张照片 -->
+                            <div class="carousel-slide">
+                                <img src="local-photos/friends3.jpg" alt="日常美好" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1542744094-3a31f272c490?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'">
+                            </div>
+                        </div>
+                        <div class="carousel-controls">
+                            <button class="carousel-btn prev-btn" data-carousel="1">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button class="carousel-btn next-btn" data-carousel="1">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                        <div class="carousel-indicators" data-carousel="1">
+                            <span class="indicator active" data-slide="0"></span>
+                            <span class="indicator" data-slide="1"></span>
+                            <span class="indicator" data-slide="2"></span>
+                        </div>
+                    </div>
+                    <div class="photo-info">
+                        <h3 class="photo-title">日常美好</h3>
+                        <p class="photo-description">那些我们一起度过的欢乐时光，每一天都是珍贵的回忆。</p>
+                        <div class="photo-count">
+                            <i class="fas fa-images"></i>
+                            <span>3张照片</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 旅行记忆 -->
+                <div class="photo-item">
+                    <div class="carousel-container">
+                        <div class="carousel-slides" data-carousel="2">
+                            <!-- 第1张照片 -->
+                            <div class="carousel-slide">
+                                <img src="local-photos/travel1.jpg" alt="旅行记忆" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1530103862676-de8c9debad1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'">
+                            </div>
+                            <!-- 第2张照片 -->
+                            <div class="carousel-slide">
+                                <img src="local-photos/travel2.jpg" alt="旅行记忆" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'">
+                            </div>
+                            <!-- 第3张照片 -->
+                            <div class="carousel-slide">
+                                <img src="local-photos/travel3.jpg" alt="旅行记忆" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1516483638261-f4dbaf036963?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'">
+                            </div>
+                        </div>
+                        <div class="carousel-controls">
+                            <button class="carousel-btn prev-btn" data-carousel="2">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button class="carousel-btn next-btn" data-carousel="2">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                        <div class="carousel-indicators" data-carousel="2">
+                            <span class="indicator active" data-slide="0"></span>
+                            <span class="indicator" data-slide="1"></span>
+                            <span class="indicator" data-slide="2"></span>
+                        </div>
+                    </div>
+                    <div class="photo-info">
+                        <h3 class="photo-title">旅行记忆</h3>
+                        <p class="photo-description">一起探索世界的日子，每一步都留下了美好的足迹。</p>
+                        <div class="photo-count">
+                            <i class="fas fa-images"></i>
+                            <span>3张照片</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 温馨时光 -->
+                <div class="photo-item">
+                    <div class="carousel-container">
+                        <div class="carousel-slides" data-carousel="3">
+                            <!-- 第1张照片 -->
+                            <div class="carousel-slide">
+                                <img src="local-photos/birthday1.jpg" alt="温馨时光" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1558904541-5a8b4a83e8c6?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'">
+                            </div>
+                            <!-- 第2张照片 -->
+                            <div class="carousel-slide">
+                                <img src="local-photos/birthday2.jpg" alt="温馨时光" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1511795409834-ef04bbd61622?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'">
+                            </div>
+                            <!-- 第3张照片 -->
+                            <div class="carousel-slide">
+                                <img src="local-photos/birthday3.jpg" alt="温馨时光" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1530103862676-de8c9debad1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'">
+                            </div>
+                        </div>
+                        <div class="carousel-controls">
+                            <button class="carousel-btn prev-btn" data-carousel="3">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button class="carousel-btn next-btn" data-carousel="3">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                        <div class="carousel-indicators" data-carousel="3">
+                            <span class="indicator active" data-slide="0"></span>
+                            <span class="indicator" data-slide="1"></span>
+                            <span class="indicator" data-slide="2"></span>
+                        </div>
+                    </div>
+                    <div class="photo-info">
+                        <h3 class="photo-title">温馨时光</h3>
+                        <p class="photo-description">一些特别的时刻，充满了欢笑和祝福。</p>
+                        <div class="photo-count">
+                            <i class="fas fa-images"></i>
+                            <span>3张照片</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 闪亮瞬间 -->
+                <div class="photo-item">
+                    <div class="carousel-container">
+                        <div class="carousel-slides" data-carousel="4">
+                            <!-- 第1张照片 -->
+                            <div class="carousel-slide">
+                                <img src="local-photos/family1.jpg" alt="闪亮瞬间" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1511988617509-a57c8a288659?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'">
+                            </div>
+                            <!-- 第2张照片 -->
+                            <div class="carousel-slide">
+                                <img src="local-photos/family2.jpg" alt="闪亮瞬间" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1543269865-cbf427effbad?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'">
+                            </div>
+                            <!-- 第3张照片 -->
+                            <div class="carousel-slide">
+                                <img src="local-photos/family3.jpg" alt="闪亮瞬间" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'">
+                            </div>
+                        </div>
+                        <div class="carousel-controls">
+                            <button class="carousel-btn prev-btn" data-carousel="4">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button class="carousel-btn next-btn" data-carousel="4">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                        <div class="carousel-indicators" data-carousel="4">
+                            <span class="indicator active" data-slide="0"></span>
+                            <span class="indicator" data-slide="1"></span>
+                            <span class="indicator" data-slide="2"></span>
+                        </div>
+                    </div>
+                    <div class="photo-info">
+                        <h3 class="photo-title">闪亮瞬间</h3>
+                        <p class="photo-description">人生的高光时刻，每一刻都值得珍藏。</p>
+                        <div class="photo-count">
+                            <i class="fas fa-images"></i>
+                            <span>3张照片</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 欢乐时刻 -->
+                <div class="photo-item">
+                    <div class="carousel-container">
+                        <div class="carousel-slides" data-carousel="5">
+                            <!-- 第1张照片 -->
+                            <div class="carousel-slide">
+                                <img src="local-photos/work1.jpg" alt="欢乐时刻" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1542744173-8e7e53415bb0?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'">
+                            </div>
+                            <!-- 第2张照片 -->
+                            <div class="carousel-slide">
+                                <img src="local-photos/work2.jpg" alt="欢乐时刻" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'">
+                            </div>
+                            <!-- 第3张照片 -->
+                            <div class="carousel-slide">
+                                <img src="local-photos/work3.jpg" alt="欢乐时刻" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1497366754035-f200968a6e72?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'">
+                            </div>
+                        </div>
+                        <div class="carousel-controls">
+                            <button class="carousel-btn prev-btn" data-carousel="5">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button class="carousel-btn next-btn" data-carousel="5">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                        <div class="carousel-indicators" data-carousel="5">
+                            <span class="indicator active" data-slide="0"></span>
+                            <span class="indicator" data-slide="1"></span>
+                            <span class="indicator" data-slide="2"></span>
+                        </div>
+                    </div>
+                    <div class="photo-info">
+                        <h3 class="photo-title">欢乐时刻</h3>
+                        <p class="photo-description">生活中的点点滴滴，充满了欢笑和惊喜。</p>
+                        <div class="photo-count">
+                            <i class="fas fa-images"></i>
+                            <span>3张照片</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 特别成员-->
+                <div class="photo-item">
+                    <div class="carousel-container">
+                        <div class="carousel-slides" data-carousel="6">
+                            <!-- 第1张照片 -->
+                            <div class="carousel-slide">
+                                <img src="local-photos/happy1.jpg" alt="特别成员" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1551135049-8a33b2fb2f5f?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'">
+                            </div>
+                            <!-- 第2张照片 -->
+                            <div class="carousel-slide">
+                                <img src="local-photos/happy2.jpg" alt="特别成员" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1517457373958-b7bdd4587205?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'">
+                            </div>
+                            <!-- 第3张照片 -->
+                            <div class="carousel-slide">
+                                <img src="local-photos/happy3.jpg" alt="特别成员" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1519681393784-d120267933ba?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'">
+                            </div>
+                        </div>
+                        <div class="carousel-controls">
+                            <button class="carousel-btn prev-btn" data-carousel="6">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button class="carousel-btn next-btn" data-carousel="6">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                        <div class="carousel-indicators" data-carousel="6">
+                            <span class="indicator active" data-slide="0"></span>
+                            <span class="indicator" data-slide="1"></span>
+                            <span class="indicator" data-slide="2"></span>
+                        </div>
+                    </div>
+                    <div class="photo-info">
+                        <h3 class="photo-title">特别成员</h3>
+                        <p class="photo-description">这位特别成员想对你说，喵呜。</p>
+                        <div class="photo-count">
+                            <i class="fas fa-images"></i>
+                            <span>3张照片</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <p>谨以此网站庆祝邱先生30岁生日</p>
+        <p>制作于 <span id="current-year"></span> 年 | 由小丸子倾情制作</p>
+        <p>祝福邱先生生日快乐，万事如意 <span class="footer-heart">❤</span></p>
+    </footer>
+
+    <!-- 音频元素 -->
+    <audio id="good-luck-song" loop>
+        <!-- 这里提供两种《好运来》音乐来源，如果第一个失效会自动尝试第二个 -->
+        <source src="local-music/good-luck.mp3" type="audio/mpeg">
+        <source src="https://music.163.com/song/media/outer/url?id=5260528.mp3" type="audio/mpeg">
+        <source src="https://www.ytmp3.cn/down/77726.mp3" type="audio/mpeg">
+        <!-- 如果在线音乐都无法播放，将显示以下提示 -->
+        您的浏览器不支持音频播放，请使用现代浏览器如Chrome、Firefox等。
+    </audio>
+
+    <script>
+        // 音乐播放器功能
+        const audio = document.getElementById('good-luck-song');
+        const musicToggle = document.getElementById('music-toggle');
+        const musicPlayer = document.getElementById('music-player');
+        const closePlayer = document.getElementById('close-player');
+        const playPauseBtn = document.getElementById('play-pause-btn');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const progressContainer = document.getElementById('progress-container');
+        const currentTimeEl = document.getElementById('current-time');
+        const durationEl = document.getElementById('duration');
+        const volumeSlider = document.getElementById('volume-slider');
+        
+        // 设置当前年份
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+        
+        // 导航栏滚动效果
+        window.addEventListener('scroll', function() {
+            const nav = document.querySelector('.top-nav');
+            if (window.scrollY > 50) {
+                nav.style.padding = '12px 0';
+                nav.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+            } else {
+                nav.style.padding = '18px 0';
+                nav.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)';
+            }
+        });
+        
+        // 导航链接点击效果
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                // 移除所有active类
+                document.querySelectorAll('.nav-link').forEach(item => {
+                    item.classList.remove('active');
+                });
+                
+                // 为当前点击的链接添加active类
+                this.classList.add('active');
+                
+                // 平滑滚动到对应部分
+                const targetId = this.getAttribute('href');
+                if(targetId.startsWith('#')) {
+                    e.preventDefault();
+                    const targetSection = document.querySelector(targetId);
+                    if(targetSection) {
+                        window.scrollTo({
+                            top: targetSection.offsetTop - 80,
+                            behavior: 'smooth'
+                        });
+                    }
+                }
+            });
+        });
+        
+        // 页面加载时添加动画效果
+        window.addEventListener('load', function() {
+            document.querySelector('.birthday-section').style.opacity = '0';
+            document.querySelector('.birthday-section').style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                document.querySelector('.birthday-section').style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+                document.querySelector('.birthday-section').style.opacity = '1';
+                document.querySelector('.birthday-section').style.transform = 'translateY(0)';
+            }, 300);
+            
+            // 设置音频事件监听
+            setupAudioEvents();
+            
+            // 初始化轮播功能
+            initCarousels();
+            
+            // 自动轮播
+            startAutoCarousel();
+        });
+        
+        // 音频功能
+        function setupAudioEvents() {
+            // 播放/暂停音乐
+            musicToggle.addEventListener('click', function() {
+                if (audio.paused) {
+                    playMusic();
+                } else {
+                    pauseMusic();
+                }
+            });
+            
+            // 显示/隐藏播放器面板
+            musicToggle.addEventListener('click', function() {
+                musicPlayer.classList.add('show');
+            });
+            
+            // 关闭播放器面板
+            closePlayer.addEventListener('click', function() {
+                musicPlayer.classList.remove('show');
+            });
+            
+            // 播放/暂停按钮
+            playPauseBtn.addEventListener('click', function() {
+                if (audio.paused) {
+                    playMusic();
+                } else {
+                    pauseMusic();
+                }
+            });
+            
+            // 上一首按钮（重新开始）
+            prevBtn.addEventListener('click', function() {
+                audio.currentTime = 0;
+                if (audio.paused) {
+                    playMusic();
+                }
+            });
+            
+            // 下一首按钮（重新开始）
+            nextBtn.addEventListener('click', function() {
+                audio.currentTime = 0;
+                if (audio.paused) {
+                    playMusic();
+                }
+            });
+            
+            // 音量控制
+            volumeSlider.addEventListener('input', function() {
+                audio.volume = this.value / 100;
+            });
+            
+            // 初始音量
+            audio.volume = volumeSlider.value / 100;
+            
+            // 进度条点击
+            progressContainer.addEventListener('click', setProgress);
+            
+            // 音频时间更新
+            audio.addEventListener('timeupdate', updateProgress);
+            
+            // 音频加载完成
+            audio.addEventListener('loadedmetadata', function() {
+                durationEl.textContent = formatTime(audio.duration);
+            });
+            
+            // 音频播放结束
+            audio.addEventListener('ended', function() {
+                playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                musicToggle.classList.remove('playing');
+                musicToggle.innerHTML = '<i class="fas fa-music"></i><span>播放好运来</span>';
+            });
+            
+            // 音频错误处理
+            audio.addEventListener('error', function() {
+                console.log('音频加载失败，尝试备用源...');
+                alert('音乐加载失败，请检查网络连接或稍后重试。');
+                musicToggle.disabled = false;
+                musicToggle.innerHTML = '<i class="fas fa-exclamation-circle"></i><span>加载失败</span>';
+            });
+        }
+        
+        // 播放音乐
+        function playMusic() {
+            audio.play().then(() => {
+                playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                musicToggle.classList.add('playing');
+                musicToggle.innerHTML = '<i class="fas fa-pause"></i><span>暂停播放</span>';
+                musicPlayer.classList.add('show');
+            }).catch(error => {
+                console.log('播放失败:', error);
+                alert('音乐播放失败，请确保已允许网页播放音频。');
+            });
+        }
+        
+        // 暂停音乐
+        function pauseMusic() {
+            audio.pause();
+            playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+            musicToggle.classList.remove('playing');
+            musicToggle.innerHTML = '<i class="fas fa-music"></i><span>播放好运来</span>';
+        }
+        
+        // 设置进度
+        function setProgress(e) {
+            const width = this.clientWidth;
+            const clickX = e.offsetX;
+            const duration = audio.duration;
+            
+            audio.currentTime = (clickX / width) * duration;
+        }
+        
+        // 更新进度条
+        function updateProgress() {
+            const { currentTime, duration } = audio;
+            const progressPercent = (currentTime / duration) * 100;
+            
+            progressBar.style.width = `${progressPercent}%`;
+            currentTimeEl.textContent = formatTime(currentTime);
+            
+            // 如果duration是NaN（音频未完全加载），则不更新总时长
+            if (!isNaN(duration)) {
+                durationEl.textContent = formatTime(duration);
+            }
+        }
+        
+        // 格式化时间（秒 -> 分:秒）
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+        
+        // 轮播功能
+        function initCarousels() {
+            // 获取所有轮播容器
+            const carousels = document.querySelectorAll('.carousel-slides');
+            
+            carousels.forEach((carousel, index) => {
+                const carouselId = carousel.dataset.carousel;
+                let currentSlide = 0;
+                const slides = carousel.querySelectorAll('.carousel-slide');
+                const totalSlides = slides.length;
+                
+                // 获取对应的按钮和指示器
+                const prevBtn = document.querySelector(`.prev-btn[data-carousel="${carouselId}"]`);
+                const nextBtn = document.querySelector(`.next-btn[data-carousel="${carouselId}"]`);
+                const indicators = document.querySelectorAll(`.carousel-indicators[data-carousel="${carouselId}"] .indicator`);
+                
+                // 更新轮播位置
+                function updateCarousel() {
+                    carousel.style.transform = `translateX(-${currentSlide * 100}%)`;
+                    
+                    // 更新指示器
+                    indicators.forEach((indicator, i) => {
+                        if (i === currentSlide) {
+                            indicator.classList.add('active');
+                        } else {
+                            indicator.classList.remove('active');
+                        }
+                    });
+                }
+                
+                // 上一张
+                function prevSlide() {
+                    currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+                    updateCarousel();
+                    resetAutoCarousel();
+                }
+                
+                // 下一张
+                function nextSlide() {
+                    currentSlide = (currentSlide + 1) % totalSlides;
+                    updateCarousel();
+                    resetAutoCarousel();
+                }
+                
+                // 绑定按钮事件
+                if (prevBtn) {
+                    prevBtn.addEventListener('click', prevSlide);
+                }
+                
+                if (nextBtn) {
+                    nextBtn.addEventListener('click', nextSlide);
+                }
+                
+                // 绑定指示器事件
+                indicators.forEach((indicator, i) => {
+                    indicator.addEventListener('click', () => {
+                        currentSlide = i;
+                        updateCarousel();
+                        resetAutoCarousel();
+                    });
+                });
+                
+                // 存储轮播控制函数
+                carousel.prevSlide = prevSlide;
+                carousel.nextSlide = nextSlide;
+                carousel.updateCarousel = updateCarousel;
+                
+                // 添加触摸滑动支持
+                let startX = 0;
+                let endX = 0;
+                
+                carousel.addEventListener('touchstart', (e) => {
+                    startX = e.touches[0].clientX;
+                });
+                
+                carousel.addEventListener('touchmove', (e) => {
+                    endX = e.touches[0].clientX;
+                });
+                
+                carousel.addEventListener('touchend', () => {
+                    const diff = startX - endX;
+                    if (Math.abs(diff) > 50) { // 滑动阈值
+                        if (diff > 0) {
+                            nextSlide();
+                        } else {
+                            prevSlide();
+                        }
+                    }
+                });
+                
+                // 初始化轮播
+                updateCarousel();
+            });
+        }
+        
+        // 自动轮播
+        let autoCarouselInterval;
+        
+        function startAutoCarousel() {
+            // 每5秒自动切换下一张
+            autoCarouselInterval = setInterval(() => {
+                const carousels = document.querySelectorAll('.carousel-slides');
+                carousels.forEach(carousel => {
+                    if (carousel.nextSlide) {
+                        carousel.nextSlide();
+                    }
+                });
+            }, 5000);
+        }
+        
+        function resetAutoCarousel() {
+            clearInterval(autoCarouselInterval);
+            startAutoCarousel();
+        }
+        
+        // 照片点击放大效果
+        document.querySelectorAll('.carousel-slide img').forEach(img => {
+            img.addEventListener('click', function(e) {
+                e.stopPropagation(); // 防止触发轮播切换
+                
+                const imgSrc = this.src;
+                const caption = this.closest('.photo-item').querySelector('.photo-title').textContent;
+                
+                // 创建模态框
+                const modal = document.createElement('div');
+                modal.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background-color: rgba(0, 0, 0, 0.9);
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    z-index: 2000;
+                    cursor: pointer;
+                `;
+                
+                const modalContent = document.createElement('div');
+                modalContent.style.cssText = `
+                    max-width: 90%;
+                    max-height: 90%;
+                    position: relative;
+                `;
+                
+                const modalImg = document.createElement('img');
+                modalImg.src = imgSrc;
+                modalImg.style.cssText = `
+                    max-width: 100%;
+                    max-height: 80vh;
+                    border-radius: 8px;
+                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+                `;
+                
+                const modalCaption = document.createElement('div');
+                modalCaption.textContent = caption;
+                modalCaption.style.cssText = `
+                    color: white;
+                    text-align: center;
+                    font-size: 20px;
+                    margin-top: 20px;
+                    font-weight: 500;
+                `;
+                
+                modalContent.appendChild(modalImg);
+                modalContent.appendChild(modalCaption);
+                modal.appendChild(modalContent);
+                document.body.appendChild(modal);
+                
+                // 点击关闭模态框
+                modal.addEventListener('click', function() {
+                    document.body.removeChild(modal);
+                });
+            });
+        });
+        
+        // 自动播放音乐（可选）
+        // 注释掉下面这行，如果需要页面加载时自动播放音乐
+        // setTimeout(() => playMusic(), 1000);
+    </script>
+</body>
+</html>
